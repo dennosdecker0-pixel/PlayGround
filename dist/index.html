@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0a0b0a" />
+  <title>DEAD HOUR — Harbor City</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%230b0c0b'/><path d='M50 15 L85 80 H15 Z' fill='%23c94d2b'/><circle cx='50' cy='55' r='12' fill='%230b0c0b'/></svg>" />
+  <script type="module" crossorigin src="./assets/index-zyPkrnp1.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-DkYhqWfW.css">
+</head>
+<body>
+  <div id="app">
+    <canvas id="game"></canvas>
+    <div id="screen-fx"><div class="fx-vignette"></div><div class="fx-grain"></div><div class="fx-scan"></div></div>
+
+    <!-- ============ HUD ============ -->
+    <div id="hud" class="hidden">
+      <div class="hud-top">
+        <div class="quest" id="quest">
+          <div class="quest-kicker"><span class="quest-dot"></span> OBJECTIVE</div>
+          <div class="quest-title" id="quest-title">Search the pharmacy</div>
+          <div class="quest-sub" id="quest-sub">Harbor Pharmacy · 42 m</div>
+        </div>
+
+        <div class="compass-wrap">
+          <div class="compass-notches"></div>
+          <div class="compass-strip" id="compass-strip">
+            <span>W</span><span>NW</span><span>N</span><span>NE</span><span>E</span><span>SE</span><span>S</span><span>SW</span>
+          </div>
+          <div class="compass-marker" id="compass-marker"><i></i></div>
+          <div class="compass-head" id="compass-head">N</div>
+          <div class="compass-degree" id="compass-degree">000°</div>
+        </div>
+
+        <div class="world-clock">
+          <div class="clock-row"><span class="live-dot"></span><span id="clock">18:12</span><span class="clock-day" id="day">DAY 1</span></div>
+          <div class="weather-row"><span id="weather-icon">◌</span><span id="weather-label">LIGHT HAZE</span><span id="temp">24°C</span></div>
+          <div class="clock-dial"><div class="dial-fill" id="dial-fill"></div><div class="dial-hand" id="dial-hand"></div></div>
+        </div>
+      </div>
+
+      <div class="hud-side">
+        <div class="noise-meter" id="noise-meter">
+          <div class="noise-label">NOISE</div>
+          <div class="noise-bars"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+        </div>
+        <div class="notifications" id="notifications"></div>
+      </div>
+
+      <div class="hud-bottom">
+        <div class="vitals">
+          <div class="vital vital-health">
+            <svg viewBox="0 0 24 24"><path d="M12 21s-7.5-4.6-9.3-9.2C1.4 8.3 3.7 4.8 7.2 4.8c2 0 3.6 1.1 4.8 3 1.2-1.9 2.8-3 4.8-3 3.5 0 5.8 3.5 4.5 7-1.8 4.6-9.3 9.2-9.3 9.2z"/></svg>
+            <div class="vital-track"><div class="vital-fill" id="health-fill"></div></div>
+            <span class="vital-num" id="health-num">100</span>
+          </div>
+          <div class="vital vital-stamina">
+            <svg viewBox="0 0 24 24"><path d="M13 2 4.5 13.5H11l-1.5 8.5 9-12H12z"/></svg>
+            <div class="vital-track"><div class="vital-fill" id="stamina-fill"></div></div>
+          </div>
+          <div class="vital-row">
+            <div class="micro-vital"><span class="micro-icon">◒</span><div class="micro-track"><i id="hunger-fill"></i></div><b id="hunger-num">86</b></div>
+            <div class="micro-vital"><span class="micro-icon drop">◈</span><div class="micro-track"><i id="thirst-fill"></i></div><b id="thirst-num">74</b></div>
+            <div class="micro-vital infection"><span class="micro-icon">☣</span><div class="micro-track"><i id="infection-fill"></i></div><b id="infection-num">0</b></div>
+          </div>
+        </div>
+
+        <div class="quickbar" id="quickbar"></div>
+
+        <div class="weapon-panel" id="weapon-panel">
+          <div class="weapon-meta"><span id="weapon-type">MELEE</span><span id="weapon-cond">98%</span></div>
+          <div class="weapon-name" id="weapon-name">WORN MACHETE</div>
+          <div class="ammo-row">
+            <div class="ammo" id="ammo-wrap"><span id="ammo">—</span><em id="ammo-reserve"></em></div>
+            <div class="weapon-icon" id="weapon-icon">
+              <svg viewBox="0 0 64 24"><path d="M3 16h28l10-6h18l2 4-16 4H20l-3 4H9z" fill="currentColor"/><path d="M31 15h10v4H31z" fill="currentColor" opacity=".55"/></svg>
+            </div>
+          </div>
+          <div class="repair-track"><i id="cond-fill"></i></div>
+        </div>
+      </div>
+
+      <div class="crosshair" id="crosshair">
+        <i class="ch-t"></i><i class="ch-b"></i><i class="ch-l"></i><i class="ch-r"></i><span class="ch-dot"></span>
+        <div class="hitmarker" id="hitmarker"><i></i><i></i><i></i><i></i></div>
+      </div>
+
+      <div class="interact" id="interact">
+        <div class="interact-ring"><svg viewBox="0 0 44 44"><circle cx="22" cy="22" r="19"/><circle class="ring-progress" id="ring-progress" cx="22" cy="22" r="19"/></svg><span class="key">E</span></div>
+        <div class="interact-copy">
+          <div class="interact-action" id="interact-action">SEARCH</div>
+          <div class="interact-target" id="interact-target">Medical cabinet</div>
+        </div>
+      </div>
+
+      <div class="stance" id="stance">STANDING</div>
+      <div class="hint-bar" id="hint-bar">
+        <span><b>WASD</b> MOVE</span><span><b>SHIFT</b> SPRINT</span><span><b>CTRL</b> CROUCH</span><span><b>E</b> INTERACT</span><span><b>TAB</b> INVENTORY</span><span><b>LMB</b> ATTACK</span>
+      </div>
+      <div class="damage-vignette" id="damage-vignette"></div>
+      <div class="low-health" id="low-health"></div>
+      <div class="subtitle" id="subtitle"></div>
+    </div>
+
+    <!-- ============ START SCREEN ============ -->
+    <div id="menu" class="menu">
+      <div class="menu-shade"></div>
+      <header class="menu-top">
+        <div class="brand-mark"><span class="brand-slash"></span> HARBOR CITY <em>// QUARANTINE ZONE</em></div>
+        <div class="menu-top-right"><span class="signal"><i></i> SIGNAL LOST</span><span>OCT 17 · 18:12</span></div>
+      </header>
+
+      <main class="menu-main">
+        <div class="menu-copy">
+          <div class="eyebrow"><span class="line"></span> A SURVIVAL STORY</div>
+          <h1 class="logo">DEAD<span>HOUR</span></h1>
+          <p class="menu-tag">The city fell in a night.<br/>The dead are still hungry.</p>
+          <p class="menu-desc">Search the ruins. Scavenge what you can. Stay quiet after dark.<br/>Harbor City belongs to the infected now — but there are still things worth living for.</p>
+          <div class="menu-actions">
+            <button id="play-btn" class="btn-primary" aria-label="Play"><span class="btn-label">PLAY</span></button>
+            <button id="howto-btn" class="btn-ghost">HOW TO PLAY</button>
+            <button id="settings-btn" class="btn-ghost">SETTINGS</button>
+          </div>
+          <div class="menu-status" id="menu-status"><i class="status-dot"></i> PREPARING THE CITY…</div>
+        </div>
+        <div class="menu-aside">
+          <div class="vertical-rule"></div>
+          <div class="coord">36° 12' 44" N<br/>44° 00' 19" E</div>
+          <div class="aside-note">SECTOR 7<br/><span>EVACUATION FAILED</span></div>
+        </div>
+      </main>
+
+      <footer class="menu-bottom">
+        <div class="menu-controls">
+          <span><b>WASD</b> MOVE</span><span><b>E</b> SEARCH</span><span><b>TAB</b> PACK</span><span><b>SHIFT</b> RUN</span><span><b>MOUSE</b> LOOK</span>
+        </div>
+        <div class="menu-copy-right">AN OPEN-WORLD SURVIVAL EXPERIENCE<br/><span>BUILT IN THREE.JS</span></div>
+      </footer>
+      <div class="menu-grain"></div>
+    </div>
+
+    <!-- ============ MODALS ============ -->
+    <div id="panel" class="panel hidden">
+      <div class="panel-bg"></div>
+      <div class="panel-frame" id="panel-frame"></div>
+    </div>
+
+    <div id="toast-layer" class="toast-layer"></div>
+  </div>
+
+</body>
+</html>
